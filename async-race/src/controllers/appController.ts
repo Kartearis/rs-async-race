@@ -5,14 +5,10 @@ import MainView from "../views/mainView";
 
 
 export default class AppController {
-  garageView: GarageView
-  recordsView: RecordsView
   mainView: MainView
   storageController: StorageController
 
   constructor() {
-    this.garageView = new GarageView();
-    this.recordsView = new RecordsView();
     this.mainView = new MainView(document.body);
     this.storageController = new StorageController();
   }
