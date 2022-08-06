@@ -1,0 +1,23 @@
+.nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.5rem;
+    margin-right: auto;
+    padding-top: 10px;
+}
+
+.nav-list__link {
+    transition: transform 0.3s, color 0.3s;
+}
+
+.nav-list__link:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+.nav-list__link--active {
+    color: #30c5ff;
+}
