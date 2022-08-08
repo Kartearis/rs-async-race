@@ -3,7 +3,14 @@ enum HttpMethods {
   GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
-  DELETE = 'DELETE'
+  DELETE = 'DELETE',
+  PATCH = 'PATCH'
+}
+
+export enum EngineStates {
+  START = 'started',
+  STOP = 'stopped',
+  DRIVE = 'drive'
 }
 
 export type CarData = {
@@ -16,6 +23,11 @@ export type CarListData = {
   totalCars: number,
   carList: CarData[]
 };
+
+export type EngineData = {
+  velocity: number,
+  distance: number
+}
 
 export default class RequestController {
   readonly #host: string
@@ -84,16 +96,53 @@ export default class RequestController {
     throw new Error(`There was an error while updating car with id ${id}`);
   }
 
+  async toggleEngine(id: number, status: EngineStates): Promise<EngineData> {
+    if (id === undefined || id <= 0)
+      throw new Error("Incorrect id");
+    const response: Response = await this.#makeRequest('/engine',
+      HttpMethods.PATCH,
+      {
+        id: id.toString(),
+        status: status
+      });
+    if (response.status === 200)
+      return response.json();
+    if (response.status === 400)
+      throw new Error(`Bad request with id ${id} and status ${status}`);
+    if (response.status === 404)
+      throw new Error("Requested car not found");
+    throw new Error("An error occured while toggling engine");
+  }
+
+  async evaluateDriving(id: number): Promise<boolean> {
+    if (id === undefined || id <= 0)
+      throw new Error("Incorrect id");
+    const response: Response = await this.#makeRequest('/engine',
+      HttpMethods.PATCH,
+      {
+        id: id.toString(),
+        status: EngineStates.DRIVE
+      });
+    switch (response.status) {
+      case 200: return true;
+      case 500: return false;
+      case 400: throw new Error(`Bad evaluation request with id ${id}`);
+      case 404: throw new Error("Requested has not started before");
+      case 429: throw new Error('Cannot evaluate the same car several times');
+      default: throw new Error('While evaluating car run some error occured');
+    }
+  }
+
   async #makeRequest(path: string, method: HttpMethods, params: Record<string, string>, body: Object = {}): Promise<Response> {
     const url = this.#host + path + '?' + (new URLSearchParams(params)).toString();
     let response: Response | null = null;
     try {
       response = await fetch(url, {
-        method: HttpMethods[method],
+        method: method,
         headers: {
           'Content-Type': 'application/json'
         },
-        body: [HttpMethods.PUT, HttpMethods.POST].includes(method) ? JSON.stringify(body) : undefined
+        body: [HttpMethods.PUT, HttpMethods.POST, HttpMethods.PATCH].includes(method) ? JSON.stringify(body) : undefined
       });
     }
     catch (e) {

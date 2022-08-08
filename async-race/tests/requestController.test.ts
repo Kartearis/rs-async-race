@@ -1,7 +1,13 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
+jest.setTimeout(10000);
+import RequestController, {
+  CarData,
+  CarListData,
+  EngineData,
+  EngineStates
+} from "../src/controllers/requestController";
 // @ts-ignore
 global.fetch = fetch;
-import RequestController, { CarData, CarListData } from '../src/controllers/requestController';
 // All api tests depend on local hosted server calls (and will fail when server is not running).
 // Some tests require that there is a car with id = 1
 // TODO: Add mock or mock fallback
@@ -88,7 +94,6 @@ describe('updateCar tests', () => {
         };
         await controller.updateCar(1, data2);
         const result = await controller.getCar(1);
-        console.log(result);
         expect(result).not.toEqual({ id: 1, ...data });
         expect(result).toEqual({ id: 1, ...data2 });
     });
@@ -147,4 +152,27 @@ describe('createCar tests', () => {
         `
         );
     });
+});
+
+function checkEngineData(data: EngineData) {
+  expect(data.velocity).toBeDefined();
+  expect(data.distance).toBeDefined();
+  expect(typeof data.velocity).toEqual('number');
+  expect(typeof data.distance).toEqual('number');
+}
+
+describe('toggleEngine tests', () => {
+  it('Should return actual velocity on start', async () => {
+    const result = await controller.toggleEngine(1, EngineStates.START);
+    checkEngineData(result);
+  });
+  it('Should return actual velocity on stop', async () => {
+    const result = await controller.toggleEngine(1, EngineStates.STOP);
+    checkEngineData(result);
+  });
+  it('Should correctly handle "not found"', async () => {
+    await expect(async () => {
+      await controller.toggleEngine(100500, EngineStates.START);
+    }).rejects.toThrow('Requested car not found');
+  });
 });
