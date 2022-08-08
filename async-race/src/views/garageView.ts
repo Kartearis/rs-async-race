@@ -2,14 +2,13 @@ import PaginationController, { EventTypes } from "../controllers/paginationContr
 import RequestController, { CarData, CarListData } from "../controllers/requestController";
 import { assertDefined } from "../components/usefulFunctions";
 import './garage-view.css';
+import SetupForm from "../components/setupForm";
 
 const template = `
   <section class="setup-form">
-    Here is setup form
   </section>
   <section class="garage">
     <h3>Garage <span id="totalCars">1</span></h3>
-<!--    <h5>Page #<span id="pageNum">1</span></h5>-->
     <div class="garage__car-container"></div>
     <div class="garage__pagination-container">
       <button disabled class="garage__pagination-button" data-page="1" data-first><<</button>
@@ -35,6 +34,8 @@ export default class GarageView {
 
   show(): void {
     this.#rootElement.innerHTML = template;
+    const setupForm = new SetupForm();
+    assertDefined(this.#rootElement.querySelector('.setup-form')).append(setupForm);
     this.setupHandlers();
     this.fillData(1).then(() => {
       this.#paginationController.pageNumber = 1;
