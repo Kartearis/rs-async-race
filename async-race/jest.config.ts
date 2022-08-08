@@ -2,6 +2,7 @@
  * For a detailed explanation regarding each configuration property and type check, visit:
  * https://jestjs.io/docs/configuration
  */
+const isLong = process.env.LONG === 'true';
 
 export default {
   // All imported modules in your tests should be mocked automatically
@@ -163,9 +164,12 @@ export default {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  // testPathIgnorePatterns: [
-  //   "\\\\node_modules\\\\"
-  // ],
+  testPathIgnorePatterns: isLong
+    ? ["\\\\node_modules\\\\"]
+    : [
+      "\\\\node_modules\\\\",
+      ".*-long.*"
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
