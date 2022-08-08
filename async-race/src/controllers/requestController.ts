@@ -1,4 +1,4 @@
-
+// TODO: Reduce code rebundancy
 enum HttpMethods {
   GET = 'GET',
   POST = 'POST',
@@ -55,12 +55,22 @@ export default class RequestController {
     throw new Error(`There was an error while requesting car with id ${id}`);
   }
 
-  async createCar() {
-
+  async createCar(data: Omit<CarData, 'id'>) {
+    const response: Response = await this.#makeRequest(`/garage`, HttpMethods.POST, {}, data);
+    if (response.status === 201)
+      return response.json();
+    throw new Error(`There was an error while creating new car`);
   }
 
-  async deleteCar(id: number) {
-
+  async deleteCar(id: number): Promise<boolean> {
+    if (id === undefined || id <= 0)
+      throw new Error("Incorrect id");
+    const response: Response = await this.#makeRequest(`/garage/${id}`, HttpMethods.DELETE, {});
+    if (response.status === 200)
+      return true;
+    if (response.status === 404)
+      throw new Error("Requested car not found");
+    throw new Error(`There was an error while deleting car with id ${id}`);
   }
 
   async updateCar(id: number, data: Omit<CarData, 'id'>): Promise<CarData> {
