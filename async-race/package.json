@@ -1,6 +1,5 @@
 {
     "name": "Async race",
-    "type": "module",
     "version": "1.0.0",
     "description": "",
     "main": "webpack.base.config.js",
