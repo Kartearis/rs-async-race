@@ -44,6 +44,13 @@
     color: #17181c;
 }
 
+.setup__button:disabled {
+    pointer-events: none;
+    background-color: #333333;
+    border-color: #555555;
+    color: #555555;
+}
+
 .setup__button--wide {
     grid-column: span 2;
 }

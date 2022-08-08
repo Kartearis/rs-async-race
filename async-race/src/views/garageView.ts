@@ -2,13 +2,14 @@ import PaginationController, { EventTypes } from "../controllers/paginationContr
 import RequestController, { CarData, CarListData } from "../controllers/requestController";
 import { assertDefined } from "../components/usefulFunctions";
 import './garage-view.css';
-import SetupForm from "../components/setupForm";
+import SetupForm, { CarSettings } from "../components/setupForm";
+import generateCars from "../controllers/carGenerator";
 
 const template = `
   <section class="setup-form">
   </section>
   <section class="garage">
-    <h3>Garage <span id="totalCars">1</span></h3>
+    <h3>Garage (<span id="totalCars">1</span>)</h3>
     <div class="garage__car-container"></div>
     <div class="garage__pagination-container">
       <button disabled class="garage__pagination-button" data-page="1" data-first><<</button>
@@ -24,6 +25,7 @@ export default class GarageView {
   #rootElement: HTMLElement
   #paginationController: PaginationController
   #requestController: RequestController
+  #setupForm: SetupForm | null = null
 
 
   constructor(element: HTMLElement) {
@@ -34,8 +36,8 @@ export default class GarageView {
 
   show(): void {
     this.#rootElement.innerHTML = template;
-    const setupForm = new SetupForm();
-    assertDefined(this.#rootElement.querySelector('.setup-form')).append(setupForm);
+    this.#setupForm = new SetupForm();
+    assertDefined(this.#rootElement.querySelector('.setup-form')).append(this.#setupForm);
     this.setupHandlers();
     this.fillData(1).then(() => {
       this.#paginationController.pageNumber = 1;
@@ -75,14 +77,42 @@ export default class GarageView {
     this.#paginationController.addHandler(EventTypes.totalChange, (currentPage?: number, totalPages?: number) => {
       lastButton.dataset['page'] = assertDefined(totalPages).toString();
     });
+    assertDefined(this.#setupForm).addEventListener('create', (event: Event) => this.newCar(event as CustomEvent<CarSettings>));
+    assertDefined(this.#setupForm).addEventListener('update', (event: Event) => this.updateCar(event as CustomEvent<CarData>));
+    assertDefined(this.#setupForm).addEventListener('generate', () => this.generateCars());
+  }
+
+  async newCar(event: CustomEvent<CarSettings>): Promise<void> {
+    await this.#requestController.createCar(event.detail);
+    await this.fillData(this.#paginationController.pageNumber);
+  }
+
+  async updateCar(event: CustomEvent<CarData>): Promise<void> {
+    await this.#requestController.updateCar(event.detail.id, {
+      name: event.detail.name,
+      color: event.detail.color
+    });
+    // TODO: Replace only updated car (if it is required)
+    await this.fillData(this.#paginationController.pageNumber);
+  };
+
+  async deleteCar(event: CustomEvent<CarData>): Promise<void> {
+    await this.#requestController.deleteCar(event.detail.id);
+    await this.fillData(this.#paginationController.pageNumber);
+  }
+
+  async generateCars() {
+    await Promise.all(generateCars(100).map((car) => this.#requestController.createCar(car)));
+    await this.fillData(this.#paginationController.pageNumber);
   }
 
   async fillData(currentPage: number | null): Promise<void> {
-    const cars: CarListData = await this.#requestController.getCars(2, currentPage);
-    this.#paginationController.totalPages = cars.totalCars / 2;
+    const cars: CarListData = await this.#requestController.getCars(7, currentPage);
+    this.#paginationController.totalPages = cars.totalCars / 7;
     const carContainer: HTMLElement = assertDefined(this.#rootElement.querySelector('.garage__car-container'));
+    (assertDefined(this.#rootElement.querySelector('#totalCars')) as HTMLElement)
+      .innerText = cars.totalCars.toString();
     carContainer.innerHTML = "";
-    console.log("Data filled");
     cars.carList.forEach((car: CarData) => {
       const tmp = document.createElement('div');
       tmp.innerText = car.name + car.color;
