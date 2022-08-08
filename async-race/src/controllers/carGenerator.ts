@@ -21,7 +21,7 @@ function generateInt(max: number): number {
 }
 
 function generateColor(): string {
-  return `#${generateInt(255).toString(16)}${generateInt(255).toString(16)}${generateInt(255).toString(16)}`;
+  return `#${generateInt(255).toString(16).padStart(2,'0')}${generateInt(255).toString(16).padStart(2, '0')}${generateInt(255).toString(16).padStart(2, '0')}`;
 }
 
 export default function generateCars(amount: number): CarSettings[] {
