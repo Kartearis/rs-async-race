@@ -20,7 +20,7 @@ const template = `
     </div>
   </section>
 `;
-
+// TODO: Reload state on view show
 export default class GarageView {
   #rootElement: HTMLElement
   #paginationController: PaginationController
@@ -39,6 +39,8 @@ export default class GarageView {
     this.#setupForm = new SetupForm();
     assertDefined(this.#rootElement.querySelector('.setup-form')).append(this.#setupForm);
     this.setupHandlers();
+    (assertDefined(this.#rootElement.querySelector('[data-last]')) as HTMLElement)
+      .dataset['page'] = this.#paginationController.totalPages.toString();
     this.fillData(1).then(() => {
       this.#paginationController.pageNumber = 1;
     });
