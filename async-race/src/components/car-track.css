@@ -1,0 +1,104 @@
+.car-track {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 10% 1fr 10%;
+    grid-template-rows: 1fr 2fr;
+    gap: 10px;
+}
+
+.car-track__head {
+    grid-column: span 2;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+}
+
+.car-track__header {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #30c5ff;
+}
+
+.car-track__head-button {
+    border: 1px solid #30c5ff;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: #30c5ff;
+    background-color: #17181c;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s;
+}
+
+.car-track__head-button:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+    background-color: #30c5ff;
+    color: #17181c;
+}
+
+.car-track__head-button:active {
+    transform: scale(1.1);
+}
+
+.car-track__engine {
+    display: flex;
+    flex-direction: row;
+    grid-column: 1;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+}
+
+.car-track__engine-button {
+    border: 1px solid #30c5ff;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #30c5ff;
+    background-color: #17181c;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s;
+}
+
+.car-track__engine-button:hover {
+    cursor: pointer;
+    transform: scale(1.2);
+    background-color: #30c5ff;
+    color: #17181c;
+}
+
+.car-track__engine-button:active {
+    transform: scale(1.1);
+}
+
+.car-track__engine-button--active {
+    background-color: #30c5ff;
+    transform: scale(1.05);
+    color: #17181c;
+}
+
+.car-track__engine-button:disabled {
+    pointer-events: none;
+    background-color: #333333;
+    border-color: #555555;
+    color: #555555;
+}
+
+.car-track__track {
+    grid-column: 2 / span 2;
+    border-bottom: 3px solid #30c5ff;
+    display: flex;
+    justify-content: space-between;
+}
+
+.car-track__car {
+    width: 50px;
+    height: 30px;
+}
+
+.car-track__goal {
+    width: 10%;
+    height: 30px;
+    background-color: blanchedalmond;
+}
+
+

@@ -4,6 +4,7 @@ import { assertDefined } from "../components/usefulFunctions";
 import './garage-view.css';
 import SetupForm, { CarSettings } from "../components/setupForm";
 import generateCars from "../controllers/carGenerator";
+import CarTrack from "../components/carTrack";
 
 const template = `
   <section class="setup-form">
@@ -110,15 +111,14 @@ export default class GarageView {
 
   async fillData(currentPage: number | null): Promise<void> {
     const cars: CarListData = await this.#requestController.getCars(7, currentPage);
-    this.#paginationController.totalPages = cars.totalCars / 7;
+    this.#paginationController.totalPages = Math.ceil(cars.totalCars / 7);
     const carContainer: HTMLElement = assertDefined(this.#rootElement.querySelector('.garage__car-container'));
     (assertDefined(this.#rootElement.querySelector('#totalCars')) as HTMLElement)
       .innerText = cars.totalCars.toString();
     carContainer.innerHTML = "";
     cars.carList.forEach((car: CarData) => {
-      const tmp = document.createElement('div');
-      tmp.innerText = car.name + car.color;
-      carContainer.append(tmp);
+      const carElement = new CarTrack(car);
+      carContainer.append(carElement);
     });
   }
 }
