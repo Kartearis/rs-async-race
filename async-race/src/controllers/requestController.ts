@@ -1,5 +1,4 @@
 
-
 enum HttpMethods {
   GET = 'GET',
   POST = 'POST',
@@ -45,8 +44,15 @@ export default class RequestController {
     else throw new Error('There was an error while requesting list of cars');
   }
 
-  async getCar(id: number) {
-
+  async getCar(id: number): Promise<CarData> {
+    if (id === undefined || id <= 0)
+      throw new Error("Incorrect id");
+    const response: Response = await this.#makeRequest(`/garage/${id}`, HttpMethods.GET, {});
+    if (response.status === 200)
+      return response.json();
+    if (response.status === 404)
+      throw new Error("Requested car not found");
+    throw new Error(`There was an error while requesting car with id ${id}`);
   }
 
   async createCar() {
@@ -57,11 +63,18 @@ export default class RequestController {
 
   }
 
-  async updateCar(id: number) {
-
+  async updateCar(id: number, data: Omit<CarData, 'id'>): Promise<CarData> {
+    if (id === undefined || id <= 0)
+      throw new Error("Incorrect id");
+    const response: Response = await this.#makeRequest(`/garage/${id}`, HttpMethods.PUT, {}, data);
+    if (response.status === 200)
+      return response.json();
+    if (response.status === 404)
+      throw new Error("Requested car not found");
+    throw new Error(`There was an error while updating car with id ${id}`);
   }
 
-  async #makeRequest(path: string, method: HttpMethods, params: Record<string, string>): Promise<Response> {
+  async #makeRequest(path: string, method: HttpMethods, params: Record<string, string>, body: Object = {}): Promise<Response> {
     const url = this.#host + path + '?' + (new URLSearchParams(params)).toString();
     let response: Response | null = null;
     try {
@@ -69,7 +82,8 @@ export default class RequestController {
         method: HttpMethods[method],
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: [HttpMethods.PUT, HttpMethods.POST].includes(method) ? JSON.stringify(body) : undefined
       });
     }
     catch (e) {
