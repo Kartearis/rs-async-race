@@ -2,7 +2,7 @@ import PaginationController, { EventTypes } from "../controllers/paginationContr
 import RequestController, { CarData, CarListData, EngineStates } from "../controllers/requestController";
 import { assertDefined } from "../components/usefulFunctions";
 import "./garage-view.css";
-import SetupForm, { CarSettings } from "../components/setupForm";
+import SetupForm, { CarSettings, RaceEvents } from "../components/setupForm";
 import generateCars from "../controllers/carGenerator";
 import CarTrack from "../components/carTrack";
 
@@ -28,6 +28,7 @@ export default class GarageView {
   #requestController: RequestController
   #setupForm: SetupForm | null = null
   #carTrackElements: CarTrack[] = []
+  #raceInProgress: boolean = false;
 
 
   constructor(element: HTMLElement) {
@@ -82,11 +83,12 @@ export default class GarageView {
       if (assertDefined(totalPages) < parseInt(lastButton.dataset['page'] ?? '1'))
         this.#paginationController.goto(assertDefined(totalPages));
       lastButton.dataset['page'] = assertDefined(totalPages).toString();
-
     });
     assertDefined(this.#setupForm).addEventListener('create', (event: Event) => this.newCar(event as CustomEvent<CarSettings>));
     assertDefined(this.#setupForm).addEventListener('update', (event: Event) => this.updateCar(event as CustomEvent<CarData>));
     assertDefined(this.#setupForm).addEventListener('generate', () => this.generateCars());
+    assertDefined(this.#setupForm).addEventListener('race', () => this.startRace());
+    assertDefined(this.#setupForm).addEventListener('reset', () => this.stopRace());
   }
 
   async newCar(event: CustomEvent<CarSettings>): Promise<void> {
@@ -156,12 +158,38 @@ export default class GarageView {
     carElement.stop();
   }
 
-  async startEngine(carId: number, carElement: CarTrack) {
+  async startEngine(carId: number, carElement: CarTrack): Promise<CarTrack> {
     const animationData = await this.#requestController.toggleEngine(carId, EngineStates.START);
     carElement.run();
     carElement.startDriving(animationData.velocity, animationData.distance);
     const result = await this.#requestController.evaluateDriving(carId);
     console.log(result);
-    if (!result) carElement.finishDriving();
+    if (!result) {
+      carElement.finishDriving();
+      throw new Error("Car engine broke down");
+    }
+    return carElement;
+  }
+
+  async startRace() {
+    this.#setupForm?.toggleRaceState(RaceEvents.RACE);
+    this.#raceInProgress = true;
+    const racers = this.#carTrackElements.map((car: CarTrack) => this.startEngine(car.getId(), car));
+    try {
+      const winner = await Promise.any(racers);
+      if (this.#raceInProgress)
+        console.log(winner);
+    }
+    catch {
+      console.log('No winners');
+    }
+
+  }
+
+  async stopRace() {
+    this.#setupForm?.toggleRaceState(RaceEvents.BLOCKED);
+    this.#raceInProgress = false;
+    await Promise.all(this.#carTrackElements.map((car: CarTrack) => this.stopEngine(car.getId(), car)));
+    this.#setupForm?.toggleRaceState(RaceEvents.RESET);
   }
 }
