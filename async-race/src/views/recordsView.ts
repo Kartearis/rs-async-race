@@ -2,7 +2,7 @@ import RequestController, { TypeOrder, TypeSort, WinnerData, WinnerListData } fr
 import PaginationController, { EventTypes } from "../controllers/paginationController";
 import { assertDefined } from "../components/usefulFunctions";
 import "./records-view.css";
-import StorageController from "../controllers/storageController";
+import StorageController, { RecordStorage } from "../controllers/storageController";
 
 
 const template = `
@@ -34,6 +34,8 @@ export default class RecordsView {
   #paginationController: PaginationController
   #requestController: RequestController
   #storageController: StorageController
+  #sort: TypeSort = TypeSort.ID
+  #order: TypeOrder = TypeOrder.ASC
 
   constructor(element: HTMLElement, storageController: StorageController) {
     this.#rootElement = element;
@@ -46,12 +48,22 @@ export default class RecordsView {
     this.#rootElement.innerHTML = template;
     this.setupHandlers();
     this.setupSort();
-    this.#paginationController.pageNumber = 1;
+    const saved: RecordStorage = this.#storageController.getStorage('records') as RecordStorage;
+    this.setSortSettings(saved.currentSortField, saved.currentSortOrder);
+    this.#paginationController.pageNumber = saved.currentPage;
   }
 
-  async fillData(currentPage: number, sorter: TypeSort, order: TypeOrder): Promise<void> {
-    assertDefined(document.querySelector('tbody')).innerHTML = "";
-    const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, sorter, order);
+  setSortSettings(field: TypeSort, order: TypeOrder): void {
+    this.#sort = field;
+    this.#order = order;
+    const query = `th[data-sorter="${field}"]`;
+    assertDefined(this.#rootElement.querySelector(query))
+      .classList.add(order === TypeOrder.ASC ? 'table-winners__header--asc' : 'table-winners__header--desc');
+  }
+
+  async fillData(currentPage: number): Promise<void> {
+    assertDefined(this.#rootElement.querySelector('tbody')).innerHTML = "";
+    const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, this.#sort, this.#order);
     this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 10);
     if(currentPage !== null) {
       assertDefined(this.#rootElement.querySelector('.view-header')).innerHTML = `Winners (${winners.totalWinners})`;
@@ -71,7 +83,7 @@ export default class RecordsView {
       `;
       num += 1;
       (tr.querySelector(".table-winners__svg-car") as HTMLDivElement).style.background = dataCar.color;
-      assertDefined(document.querySelector('tbody')).appendChild(tr);
+      assertDefined(this.#rootElement.querySelector('tbody')).appendChild(tr);
     }));
   }
 
@@ -106,7 +118,8 @@ export default class RecordsView {
       }
     };
     this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
-      this.fillData(assertDefined(currentPage), TypeSort.ID, TypeOrder.ASC);
+      this.fillData(assertDefined(currentPage));
+      this.#storageController.getStorage('records').currentPage = assertDefined(currentPage);
       managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       pageNumber.innerText = pageNumber.dataset['page'] = assertDefined(currentPage).toString();
     });
@@ -119,7 +132,7 @@ export default class RecordsView {
   }
 
   setupSort(): void {
-    assertDefined(document.querySelectorAll('th[data-sorter]')).forEach(th => {
+    assertDefined(this.#rootElement.querySelectorAll('th[data-sorter]')).forEach(th => {
       th.addEventListener('click', (event: Event) => {
         const dataSort: string = (event.target as HTMLElement).dataset.sorter ?? "id";
         let order: TypeOrder = TypeOrder.ASC;
@@ -135,7 +148,7 @@ export default class RecordsView {
           order = TypeOrder.ASC;
         }
         else {
-          assertDefined(document.querySelectorAll('th[data-sorter]')).forEach(th => {
+          assertDefined(this.#rootElement.querySelectorAll('th[data-sorter]')).forEach(th => {
             th.classList.remove("table-winners__header--asc");
             th.classList.remove("table-winners__header--desc");
           });
@@ -149,7 +162,10 @@ export default class RecordsView {
           sort = TypeSort.WINS;
         else
           sort = TypeSort.TIME;
-        this.fillData(assertDefined(this.#paginationController.pageNumber), sort, order);
+        const store: RecordStorage = this.#storageController.getStorage('records') as RecordStorage;
+        store.currentSortOrder = this.#order = order;
+        store.currentSortField = this.#sort = sort;
+        this.fillData(assertDefined(this.#paginationController.pageNumber));
       })
     })
   }
