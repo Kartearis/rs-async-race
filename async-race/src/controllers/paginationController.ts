@@ -53,6 +53,10 @@ export default class PaginationController {
       this.#handlers[eventType].push(handler);
   }
 
+  clearHandlers(eventType: EventTypes): void {
+    this.#handlers[eventType] = [];
+  }
+
   next(): void {
     if (this.#pageNumber < this.#totalPages) {
       this.#pageNumber += 1;

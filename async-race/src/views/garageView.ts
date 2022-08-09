@@ -45,9 +45,7 @@ export default class GarageView {
     this.setupHandlers();
     (assertDefined(this.#rootElement.querySelector('[data-last]')) as HTMLElement)
       .dataset['page'] = this.#paginationController.totalPages.toString();
-    this.fillData(1).then(() => {
-      this.#paginationController.pageNumber = 1;
-    });
+    this.#paginationController.pageNumber = 1;
   }
 
   setupHandlers(): void {
@@ -78,6 +76,8 @@ export default class GarageView {
         lastButton.disabled = false;
       }
     };
+    this.#paginationController.clearHandlers(EventTypes.totalChange);
+    this.#paginationController.clearHandlers(EventTypes.pageChange);
     this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
       this.fillData(assertDefined(currentPage));
       managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
@@ -113,6 +113,7 @@ export default class GarageView {
 
   async deleteCar(event: CustomEvent<CarData>): Promise<void> {
     await this.#requestController.deleteCar(event.detail.id);
+    await this.#requestController.deleteWinner(event.detail.id);
     await this.fillData(this.#paginationController.pageNumber);
   }
 
@@ -122,6 +123,7 @@ export default class GarageView {
   }
 
   async fillData(currentPage: number | null): Promise<void> {
+    console.log('Filled g');
     const cars: CarListData = await this.#requestController.getCars(7, currentPage);
     this.#paginationController.totalPages = Math.ceil(cars.totalCars / 7);
     const carContainer: HTMLElement = assertDefined(this.#rootElement.querySelector('.garage__car-container'));

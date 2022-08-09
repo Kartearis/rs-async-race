@@ -1,4 +1,4 @@
-import RequestController, { TypeOrder, TypeSort, WinnerListData } from "../controllers/requestController";
+import RequestController, { TypeOrder, TypeSort, WinnerData, WinnerListData } from "../controllers/requestController";
 import PaginationController, { EventTypes } from "../controllers/paginationController";
 import { assertDefined } from "../components/usefulFunctions";
 import "./records-view.css";
@@ -42,13 +42,12 @@ export default class RecordsView {
   show(): void {
     this.#rootElement.innerHTML = template;
     this.setupHandlers();
-    this.sort();
-    this.fillData(1, TypeSort.ID, TypeOrder.ASC).then(() => {
-      this.#paginationController.pageNumber = 1;
-    });
+    this.setupSort();
+    this.#paginationController.pageNumber = 1;
   }
 
   async fillData(currentPage: number, sorter: TypeSort, order: TypeOrder): Promise<void> {
+    console.log("Filled");
     assertDefined(document.querySelector('tbody')).innerHTML = "";
     const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, sorter, order);
     this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 10);
@@ -57,19 +56,19 @@ export default class RecordsView {
       assertDefined(this.#rootElement.querySelector('.page-header')).innerHTML = `Page #${currentPage}`;
     }
 
-    for (const resultKey in winners.winnerList) {
-      const dataCar = await this.#requestController.getCar(winners.winnerList[resultKey].id);
+    await Promise.all(winners.winnerList.map(async (winner: WinnerData) =>{
+      const dataCar = await this.#requestController.getCar(winner.id);
       let tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${winners.winnerList[resultKey].id}</td>
+        <td>${winner.id}</td>
         <td> <div class="table-winners__svg-car"></div></td>
         <td>${dataCar.name}</td>
-        <td>${winners.winnerList[resultKey].wins}</td>
-        <td>${winners.winnerList[resultKey].time.toFixed(2)}</td>
+        <td>${winner.wins}</td>
+        <td>${winner.time.toFixed(2)}</td>
       `;
       (tr.querySelector(".table-winners__svg-car") as HTMLDivElement).style.background = dataCar.color;
       assertDefined(document.querySelector('tbody')).appendChild(tr);
-    }
+    }));
   }
 
   setupHandlers(): void {
@@ -86,8 +85,9 @@ export default class RecordsView {
     const pageNumber: HTMLButtonElement = assertDefined(paginationContainer.querySelector('.records__pagination-number'));
     const lastButton: HTMLButtonElement = assertDefined(paginationContainer.querySelector('[data-last]'));
     const nextButton: HTMLButtonElement = assertDefined(paginationContainer.querySelector('[data-direction="next"]'));
-    this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
-      this.fillData(assertDefined(currentPage), TypeSort.ID, TypeOrder.ASC);
+    this.#paginationController.clearHandlers(EventTypes.pageChange);
+    this.#paginationController.clearHandlers(EventTypes.totalChange);
+    const managePaginationButtons = (currentPage: number, totalPages: number) => {
       prevButton.disabled = true;
       nextButton.disabled = true;
       firstButton.disabled = true;
@@ -100,14 +100,21 @@ export default class RecordsView {
         nextButton.disabled = false;
         lastButton.disabled = false;
       }
+    };
+    this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
+      this.fillData(assertDefined(currentPage), TypeSort.ID, TypeOrder.ASC);
+      managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       pageNumber.innerText = pageNumber.dataset['page'] = assertDefined(currentPage).toString();
     });
     this.#paginationController.addHandler(EventTypes.totalChange, (currentPage?: number, totalPages?: number) => {
+      if (assertDefined(totalPages) < assertDefined(currentPage))
+        this.#paginationController.goto(assertDefined(totalPages));
+      else managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       lastButton.dataset['page'] = assertDefined(totalPages).toString();
     });
   }
 
-  sort(): void {
+  setupSort(): void {
     assertDefined(document.querySelectorAll('th[data-sorter]')).forEach(th => {
       th.addEventListener('click', (event: Event) => {
         const dataSort: string = (event.target as HTMLElement).dataset.sorter ?? "id";
