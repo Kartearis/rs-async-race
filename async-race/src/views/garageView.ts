@@ -63,8 +63,7 @@ export default class GarageView {
     const pageNumber: HTMLButtonElement = assertDefined(paginationContainer.querySelector('.garage__pagination-number'));
     const lastButton: HTMLButtonElement = assertDefined(paginationContainer.querySelector('[data-last]'));
     const nextButton: HTMLButtonElement = assertDefined(paginationContainer.querySelector('[data-direction="next"]'));
-    this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
-      this.fillData(assertDefined(currentPage));
+    const managePaginationButtons = (currentPage: number, totalPages: number) => {
       prevButton.disabled = true;
       nextButton.disabled = true;
       firstButton.disabled = true;
@@ -77,11 +76,16 @@ export default class GarageView {
         nextButton.disabled = false;
         lastButton.disabled = false;
       }
+    };
+    this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
+      this.fillData(assertDefined(currentPage));
+      managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       pageNumber.innerText = pageNumber.dataset['page'] = assertDefined(currentPage).toString();
     });
     this.#paginationController.addHandler(EventTypes.totalChange, (currentPage?: number, totalPages?: number) => {
-      if (assertDefined(totalPages) < parseInt(lastButton.dataset['page'] ?? '1'))
+      if (assertDefined(totalPages) < assertDefined(currentPage))
         this.#paginationController.goto(assertDefined(totalPages));
+      else managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       lastButton.dataset['page'] = assertDefined(totalPages).toString();
     });
     assertDefined(this.#setupForm).addEventListener('create', (event: Event) => this.newCar(event as CustomEvent<CarSettings>));
