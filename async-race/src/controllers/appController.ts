@@ -9,8 +9,8 @@ export default class AppController {
   storageController: StorageController
 
   constructor() {
-    this.mainView = new MainView(document.body);
     this.storageController = new StorageController();
+    this.mainView = new MainView(document.body, this.storageController);
   }
 
   init(): void {

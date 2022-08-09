@@ -49,6 +49,8 @@ export default class SetupForm extends HTMLElement {
     this.#generateButton.addEventListener('click', () => this.emitGenerate());
     this.#raceButton.addEventListener('click', () => this.emitRaceEvent(RaceEvents.RACE));
     this.#resetButton.addEventListener('click', () => this.emitRaceEvent(RaceEvents.RESET));
+    this.#nameInput.addEventListener('change', () => this.emitFieldUpdate());
+    this.#colorInput.addEventListener('change', () => this.emitFieldUpdate());
   }
 
   selectCar(car: CarData) {
@@ -65,6 +67,21 @@ export default class SetupForm extends HTMLElement {
 
   getSelectedCar(): CarData | null {
     return this.#selectedCar;
+  }
+
+  setFields(name: string, color: string) {
+    this.#nameInput.value = name;
+    this.#colorInput.value = color;
+  }
+
+  emitFieldUpdate(): void {
+    const event: CustomEvent<CarSettings> = new CustomEvent('fieldUpdate', {
+      detail: {
+        name: this.#nameInput.value,
+        color: this.#colorInput.value
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   emitCreate(): void {

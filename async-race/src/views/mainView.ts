@@ -4,6 +4,7 @@ import { assertDefined } from "../components/usefulFunctions";
 import './main-view.css';
 import GarageView from "./garageView";
 import RecordsView from "./recordsView";
+import StorageController from "../controllers/storageController";
 
 const template: HTMLTemplateElement = document.createElement('template');
 template.innerHTML = `
@@ -40,7 +41,7 @@ export default class MainView {
   #allNavs: HTMLElement
   #contentContainer: HTMLElement
 
-  constructor(rootElement: HTMLElement) {
+  constructor(rootElement: HTMLElement, storageController: StorageController) {
     const viewContent: Node = template.content.cloneNode(true);
     rootElement.append(viewContent);
     (assertDefined(rootElement.querySelector('.rs-logo__icon')) as HTMLImageElement).src = rsLogo;
@@ -50,8 +51,8 @@ export default class MainView {
     this.#garageNav.addEventListener('click', () => this.showGarage());
     this.#recordsNav = assertDefined(rootElement.querySelector('.nav-list__link#records'));
     this.#recordsNav.addEventListener('click', () => this.showRecords());
-    this.garageView = new GarageView(this.#contentContainer);
-    this.recordsView = new RecordsView(this.#contentContainer);
+    this.garageView = new GarageView(this.#contentContainer, storageController);
+    this.recordsView = new RecordsView(this.#contentContainer, storageController);
     // TODO: load last opened from storage
     this.showGarage();
   }

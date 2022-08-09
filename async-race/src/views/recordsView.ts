@@ -2,6 +2,7 @@ import RequestController, { TypeOrder, TypeSort, WinnerData, WinnerListData } fr
 import PaginationController, { EventTypes } from "../controllers/paginationController";
 import { assertDefined } from "../components/usefulFunctions";
 import "./records-view.css";
+import StorageController from "../controllers/storageController";
 
 
 const template = `
@@ -10,7 +11,7 @@ const template = `
   <table class="table-winners">
     <thead>
     <tr>
-        <th class="table-winners__header--asc" data-sorter="id">Number</th>
+        <th class="table-winners__header--asc" data-sorter="id">Number (Sort by id)</th>
         <th>Car</th>
         <th>Name</th>
         <th data-sorter="wins">Wins</th>
@@ -32,9 +33,11 @@ export default class RecordsView {
   #rootElement: HTMLElement
   #paginationController: PaginationController
   #requestController: RequestController
+  #storageController: StorageController
 
-  constructor(element: HTMLElement) {
+  constructor(element: HTMLElement, storageController: StorageController) {
     this.#rootElement = element;
+    this.#storageController = storageController;
     this.#paginationController = new PaginationController();
     this.#requestController = new RequestController('http://127.0.0.1:3000');
   }

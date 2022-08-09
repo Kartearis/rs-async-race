@@ -6,6 +6,7 @@ import SetupForm, { CarSettings, RaceEvents } from "../components/setupForm";
 import generateCars from "../controllers/carGenerator";
 import CarTrack from "../components/carTrack";
 import Alert from "../components/alert";
+import StorageController, { GarageStorage } from "../controllers/storageController";
 
 const template = `
   <section class="setup-form">
@@ -30,10 +31,12 @@ export default class GarageView {
   #setupForm: SetupForm | null = null
   #carTrackElements: CarTrack[] = []
   #raceInProgress: boolean = false;
+  #storageController: StorageController
 
 
-  constructor(element: HTMLElement) {
+  constructor(element: HTMLElement, storageController: StorageController) {
     this.#rootElement = element;
+    this.#storageController = storageController;
     this.#paginationController = new PaginationController();
     this.#requestController = new RequestController('http://127.0.0.1:3000');
   }
@@ -43,9 +46,13 @@ export default class GarageView {
     this.#setupForm = new SetupForm();
     assertDefined(this.#rootElement.querySelector('.setup-form')).append(this.#setupForm);
     this.setupHandlers();
+    const saved: GarageStorage = this.#storageController.getStorage('garage') as GarageStorage;
     (assertDefined(this.#rootElement.querySelector('[data-last]')) as HTMLElement)
       .dataset['page'] = this.#paginationController.totalPages.toString();
-    this.#paginationController.pageNumber = 1;
+    this.#paginationController.pageNumber = saved.currentPage;
+    this.#setupForm?.setFields(saved.currentNameInput, saved.currentColorInput);
+    if (saved.currentlySelectedCar)
+      this.#setupForm?.selectCar(saved.currentlySelectedCar);
   }
 
   setupHandlers(): void {
@@ -80,6 +87,7 @@ export default class GarageView {
     this.#paginationController.clearHandlers(EventTypes.pageChange);
     this.#paginationController.addHandler(EventTypes.pageChange, (currentPage?: number, totalPages?: number) => {
       this.fillData(assertDefined(currentPage));
+      this.#storageController.getStorage('garage').currentPage = assertDefined(currentPage);
       managePaginationButtons(assertDefined(currentPage), assertDefined(totalPages));
       pageNumber.innerText = pageNumber.dataset['page'] = assertDefined(currentPage).toString();
     });
@@ -94,6 +102,11 @@ export default class GarageView {
     assertDefined(this.#setupForm).addEventListener('generate', () => this.generateCars());
     assertDefined(this.#setupForm).addEventListener('race', () => this.startRace());
     assertDefined(this.#setupForm).addEventListener('reset', () => this.stopRace());
+    assertDefined(this.#setupForm).addEventListener('fieldUpdate', (event) => {
+      const store: GarageStorage = this.#storageController.getStorage('garage') as GarageStorage;
+      store.currentNameInput = (event as CustomEvent<CarSettings>).detail.name;
+      store.currentColorInput = (event as CustomEvent<CarSettings>).detail.color;
+    });
   }
 
   async newCar(event: CustomEvent<CarSettings>): Promise<void> {
@@ -108,12 +121,12 @@ export default class GarageView {
     });
     // TODO: Replace only updated car (if it is required)
     await this.fillData(this.#paginationController.pageNumber);
-    this.#setupForm?.clearCarSelection();
   };
 
   async deleteCar(event: CustomEvent<CarData>): Promise<void> {
     await this.#requestController.deleteCar(event.detail.id);
     await this.#requestController.deleteWinner(event.detail.id);
+    this.#setupForm?.clearCarSelection();
     await this.fillData(this.#paginationController.pageNumber);
   }
 
@@ -132,6 +145,8 @@ export default class GarageView {
     this.#carTrackElements = [];
     cars.carList.forEach((car: CarData) => {
       const carElement = new CarTrack(car);
+      if (this.#setupForm?.getSelectedCar()?.id === car.id)
+        carElement.select();
       // TODO: Move these listeners to car container
       carElement.addEventListener('select', (event) => {
         if (assertDefined(this.#setupForm).getSelectedCar() !== null)
@@ -141,7 +156,10 @@ export default class GarageView {
           this.#setupForm?.clearCarSelection();
         }
         if (event instanceof CustomEvent<CarData>)
+        {
           this.#setupForm?.selectCar(event.detail);
+          (this.#storageController.getStorage('garage') as GarageStorage).currentlySelectedCar = event.detail;
+        }
       });
       carElement.addEventListener('delete', (event) => {
         const ev: CustomEvent<CarData> = event as CustomEvent<CarData>;
