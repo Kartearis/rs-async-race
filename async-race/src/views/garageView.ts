@@ -123,7 +123,6 @@ export default class GarageView {
   }
 
   async fillData(currentPage: number | null): Promise<void> {
-    console.log('Filled g');
     const cars: CarListData = await this.#requestController.getCars(7, currentPage);
     this.#paginationController.totalPages = Math.ceil(cars.totalCars / 7);
     const carContainer: HTMLElement = assertDefined(this.#rootElement.querySelector('.garage__car-container'));

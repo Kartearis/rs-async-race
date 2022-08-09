@@ -47,7 +47,6 @@ export default class RecordsView {
   }
 
   async fillData(currentPage: number, sorter: TypeSort, order: TypeOrder): Promise<void> {
-    console.log("Filled");
     assertDefined(document.querySelector('tbody')).innerHTML = "";
     const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, sorter, order);
     this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 10);
@@ -56,16 +55,18 @@ export default class RecordsView {
       assertDefined(this.#rootElement.querySelector('.page-header')).innerHTML = `Page #${currentPage}`;
     }
 
+    let num: number = (currentPage - 1) * 10;
     await Promise.all(winners.winnerList.map(async (winner: WinnerData) =>{
       const dataCar = await this.#requestController.getCar(winner.id);
       let tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${winner.id}</td>
+        <td>${num}</td>
         <td> <div class="table-winners__svg-car"></div></td>
         <td>${dataCar.name}</td>
         <td>${winner.wins}</td>
         <td>${winner.time.toFixed(2)}</td>
       `;
+      num += 1;
       (tr.querySelector(".table-winners__svg-car") as HTMLDivElement).style.background = dataCar.color;
       assertDefined(document.querySelector('tbody')).appendChild(tr);
     }));
