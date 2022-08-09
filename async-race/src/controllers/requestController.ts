@@ -19,6 +19,17 @@ export type CarData = {
   id: number
 };
 
+export enum TypeSort {
+  ID = 'id',
+  WINS = 'wins',
+  TIME = 'time'
+}
+
+export enum TypeOrder {
+  ASC = 'ASC',
+  DESC = 'DESC'
+}
+
 export type CarListData = {
   totalCars: number,
   carList: CarData[]
@@ -28,6 +39,17 @@ export type EngineData = {
   velocity: number,
   distance: number
 }
+
+export type WinnerData = {
+  id: number,
+  wins: number,
+  time: number,
+};
+
+export type WinnerListData = {
+  totalWinners: number,
+  winnerList: WinnerData[]
+};
 
 export default class RequestController {
   readonly #host: string
@@ -131,6 +153,25 @@ export default class RequestController {
       case 429: throw new Error('Cannot evaluate the same car several times');
       default: throw new Error('While evaluating car run some error occured');
     }
+  }
+
+  async getWinners(perPage: number, page: number, sort: TypeSort, order: TypeOrder): Promise<WinnerListData> {
+    const params : {_page: string, _limit: string, _sort: TypeSort, _order: TypeOrder} = {
+        _page: page.toString(),
+        _limit: perPage.toString(),
+        _sort: sort,
+        _order: order
+      };
+    const response: Response = await this.#makeRequest('/winners', HttpMethods.GET, params);
+    if (response.status === 200) {
+      const data: WinnerData[] = await response.json();
+      const totalCountHeader: string | null = response.headers.get('X-Total-Count');
+      return {
+        totalWinners: totalCountHeader ? parseInt(totalCountHeader) : data.length,
+        winnerList: data
+      };
+    }
+    else throw new Error('There was an error while requesting list of winners');
   }
 
   async #makeRequest(path: string, method: HttpMethods, params: Record<string, string>, body: Object = {}): Promise<Response> {
