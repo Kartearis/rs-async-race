@@ -16,8 +16,8 @@ const template = `
   <div class="car-track__track">
     <div class="car-track__car">
     </div>
-    <div class="car-track__goal">
-    </div>
+  </div>
+  <div class="car-track__goal">
   </div>
 `;
 
@@ -60,6 +60,22 @@ export default class CarTrack extends HTMLElement {
 
   deSelect(): void {
     this.classList.remove('car-track--selected');
+  }
+
+  run(): void {
+    this.#stopButton.disabled = false;
+    this.#runButton.disabled = true;
+  }
+
+  stop(): void {
+    this.#stopButton.disabled = true;
+    this.#runButton.disabled = false;
+  }
+
+  startDriving(velocity: number, range: number): void {
+    const eta = range / velocity;
+    this.style.setProperty('--eta', `${eta}ms`);
+    this.#carElement.classList.add('car-track__car--running');
   }
 
   emitEvent(eventName: string): void {

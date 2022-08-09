@@ -1,7 +1,7 @@
 import PaginationController, { EventTypes } from "../controllers/paginationController";
-import RequestController, { CarData, CarListData } from "../controllers/requestController";
+import RequestController, { CarData, CarListData, EngineStates } from "../controllers/requestController";
 import { assertDefined } from "../components/usefulFunctions";
-import './garage-view.css';
+import "./garage-view.css";
 import SetupForm, { CarSettings } from "../components/setupForm";
 import generateCars from "../controllers/carGenerator";
 import CarTrack from "../components/carTrack";
@@ -142,8 +142,21 @@ export default class GarageView {
           && ev.detail.id === assertDefined(this.#setupForm).getSelectedCar()?.id)
           this.#setupForm?.clearCarSelection();
       });
+      carElement.addEventListener('run',
+        (event) => this.startEngine((event as CustomEvent<CarData>).detail.id, carElement));
+      carElement.addEventListener('stop', (event) => {
+
+      });
       this.#carTrackElements.push(carElement);
       carContainer.append(carElement);
     });
+  }
+
+  async startEngine(carId: number, carElement: CarTrack) {
+    const animationData = await this.#requestController.toggleEngine(carId, EngineStates.START);
+    carElement.run();
+    carElement.startDriving(animationData.velocity, animationData.distance);
+    const result = await this.#requestController.evaluateDriving(carId);
+    console.log(result);
   }
 }

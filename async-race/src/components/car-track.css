@@ -90,6 +90,7 @@
 
 .car-track__track {
     grid-column: 2 / span 2;
+    grid-row: 2;
     border-bottom: 3px solid #30c5ff;
     display: flex;
     justify-content: space-between;
@@ -104,8 +105,29 @@
     mask-image:url(../assets/svg/sports-car-icon.svg);
 }
 
+.car-track__car--running {
+    --eta: 5s;
+    animation-duration: var(--eta);
+    animation-name: drive;
+    animation-timing-function: ease-in;
+}
+
+@keyframes drive {
+    from {
+        margin-left: 0%;
+
+    }
+
+    to {
+        margin-left: 90%;
+    }
+}
+
 .car-track__goal {
-    width: 10%;
+    position: relative;
+    bottom: 3px;
+    grid-column: 3;
+    grid-row: 2;
     height: 100%;
     background-color: red;
     mask-repeat: no-repeat;
