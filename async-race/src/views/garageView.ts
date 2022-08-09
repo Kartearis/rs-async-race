@@ -5,6 +5,7 @@ import "./garage-view.css";
 import SetupForm, { CarSettings, RaceEvents } from "../components/setupForm";
 import generateCars from "../controllers/carGenerator";
 import CarTrack from "../components/carTrack";
+import Alert from "../components/alert";
 
 const template = `
   <section class="setup-form">
@@ -181,8 +182,10 @@ export default class GarageView {
     const racers = this.#carTrackElements.map((car: CarTrack) => this.startEngine(car.getId(), car));
     try {
       const winner = await Promise.any(racers);
-      if (this.#raceInProgress)
+      if (this.#raceInProgress) {
         console.log(winner);
+        this.#rootElement.append(new Alert('Race finished', 'Winner is !'));
+      }
     }
     catch {
       console.log('No winners');
