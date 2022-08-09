@@ -50,8 +50,8 @@ export default class RecordsView {
 
   async fillData(currentPage: number, sorter: TypeSort, order: TypeOrder): Promise<void> {
     assertDefined(document.querySelector('tbody')).innerHTML = "";
-    const winners: WinnerListData = await this.#requestController.getWinners(6, currentPage, sorter, order);
-    this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 6);
+    const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, sorter, order);
+    this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 10);
     if(currentPage !== null) {
       assertDefined(this.#rootElement.querySelector('h2')).innerHTML = `Winners (${winners.totalWinners})`;
       assertDefined(this.#rootElement.querySelector('h3')).innerHTML = `Page #${currentPage}`;
