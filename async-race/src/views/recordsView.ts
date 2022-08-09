@@ -65,7 +65,7 @@ export default class RecordsView {
         <td> <div class="table-winners__svg-car"></div></td>
         <td>${dataCar.name}</td>
         <td>${winners.winnerList[resultKey].wins}</td>
-        <td>${winners.winnerList[resultKey].time}</td>
+        <td>${winners.winnerList[resultKey].time.toFixed(2)}</td>
       `;
       (tr.querySelector(".table-winners__svg-car") as HTMLDivElement).style.background = dataCar.color;
       assertDefined(document.querySelector('tbody')).appendChild(tr);
