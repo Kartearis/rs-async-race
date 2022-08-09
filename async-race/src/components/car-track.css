@@ -1,7 +1,7 @@
 .car-track {
     width: 100%;
     display: grid;
-    grid-template-columns: 10% 1fr 10%;
+    grid-template-columns: 10% 1fr 15%;
     grid-template-rows: 1fr 2fr;
     gap: 10px;
 }
@@ -49,6 +49,7 @@
 .car-track__engine {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     grid-column: 1;
     justify-content: flex-start;
     align-items: center;
@@ -101,6 +102,7 @@
     width: 70px;
     height: 20px;
     transform: scaleX(-1);
+    -webkit-mask-repeat: no-repeat;
     -webkit-mask-image: url(../assets/svg/sports-car-icon.svg);
     mask-image:url(../assets/svg/sports-car-icon.svg);
 }
@@ -113,6 +115,14 @@
     animation-fill-mode: forwards;
 }
 
+@media (max-width: 700px) {
+    .car-track__car {
+        width: 56px;
+        height: 16px;
+    }
+
+}
+
 @keyframes drive {
     from {
         margin-left: 0%;
@@ -120,7 +130,7 @@
     }
 
     to {
-        margin-left: 90%;
+        margin-left: 85%;
     }
 }
 

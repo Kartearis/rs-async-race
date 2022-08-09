@@ -13,9 +13,9 @@ template.innerHTML = `
         <li class="nav-list__link" id="garage">Garage</li>
         <li class="nav-list__link" id="records">Records</li>
       </ul>
-      <div class="burger-button">
-          <div class="burger-button__icon"></div>
-      </div>
+<!--      <div class="burger-button">-->
+<!--          <div class="burger-button__icon"></div>-->
+<!--      </div>-->
   </header>
   <main class="content">
   </main>
