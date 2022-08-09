@@ -138,7 +138,8 @@ export default class GarageView {
       carElement.addEventListener('delete', (event) => {
         const ev: CustomEvent<CarData> = event as CustomEvent<CarData>;
         this.deleteCar(ev);
-        if (ev.detail.id === assertDefined(this.#setupForm?.getSelectedCar()).id)
+        if (assertDefined(this.#setupForm).getSelectedCar()
+          && ev.detail.id === assertDefined(this.#setupForm).getSelectedCar()?.id)
           this.#setupForm?.clearCarSelection();
       });
       this.#carTrackElements.push(carElement);
