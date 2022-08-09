@@ -53,8 +53,8 @@ export default class RecordsView {
     const winners: WinnerListData = await this.#requestController.getWinners(10, currentPage, sorter, order);
     this.#paginationController.totalPages = Math.ceil(winners.totalWinners / 10);
     if(currentPage !== null) {
-      assertDefined(this.#rootElement.querySelector('h2')).innerHTML = `Winners (${winners.totalWinners})`;
-      assertDefined(this.#rootElement.querySelector('h3')).innerHTML = `Page #${currentPage}`;
+      assertDefined(this.#rootElement.querySelector('.view-header')).innerHTML = `Winners (${winners.totalWinners})`;
+      assertDefined(this.#rootElement.querySelector('.page-header')).innerHTML = `Page #${currentPage}`;
     }
 
     for (const resultKey in winners.winnerList) {
