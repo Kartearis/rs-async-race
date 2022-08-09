@@ -29,6 +29,7 @@ export default class CarTrack extends HTMLElement {
   #deleteButton: HTMLButtonElement
   #runButton: HTMLButtonElement
   #stopButton: HTMLButtonElement
+  #eta: number = 0
 
   constructor(data: CarData) {
     super();
@@ -79,13 +80,18 @@ export default class CarTrack extends HTMLElement {
   }
 
   startDriving(velocity: number, range: number): void {
-    const eta: number = range / velocity;
-    this.#carElement.style.setProperty('--eta', `${eta}ms`);
+    this.#eta = range / velocity;
+    this.#carElement.style.setProperty('--eta', `${this.#eta}ms`);
     this.#carElement.classList.add('car-track__car--running');
   }
 
   finishDriving(): void {
     this.#carElement.style.animationPlayState = 'paused';
+    this.#eta = 0;
+  }
+
+  getSeconds(): number {
+    return this.#eta / 1000;
   }
 
   emitEvent(eventName: string): void {

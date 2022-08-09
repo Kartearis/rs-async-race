@@ -174,6 +174,42 @@ export default class RequestController {
     else throw new Error('There was an error while requesting list of winners');
   }
 
+  async getWinner(id: number): Promise<WinnerData> {
+    const response: Response = await this.#makeRequest(`/winners/${id}`, HttpMethods.GET, {});
+    if (response.status === 200)
+      return response.json();
+    if (response.status === 404)
+      throw new Error("Requested winner not found");
+    throw new Error(`There was an error while requesting winner with id ${id}`);
+  }
+
+  async createWinner(data: WinnerData): Promise<WinnerData> {
+    const response: Response = await this.#makeRequest(`/winners`, HttpMethods.POST, {}, data);
+    if (response.status === 201)
+      return response.json();
+    if (response.status === 500)
+      throw new Error("Could not create a record in winner table: Duplicate id");
+    throw new Error(`There was an error while creating winner`);
+  }
+
+  async updateWinner(id: number, data: Omit<WinnerData, 'id'>): Promise<WinnerData> {
+    const response: Response = await this.#makeRequest(`/winners/${id}`, HttpMethods.PUT, {}, data);
+    if (response.status === 200)
+      return response.json();
+    if (response.status === 404)
+      throw new Error("Requested winner not found");
+    throw new Error(`There was an error while updating winner with id ${id}`);
+  }
+
+  async deleteWinner(id: number): Promise<void> {
+    const response: Response = await this.#makeRequest(`/winners/${id}`, HttpMethods.DELETE, {});
+    if (response.status === 200)
+      return;
+    if (response.status === 404)
+      throw new Error("Requested winner not found");
+    throw new Error(`There was an error while deleting winner with id ${id}`);
+  }
+
   async #makeRequest(path: string, method: HttpMethods, params: Record<string, string>, body: Object = {}): Promise<Response> {
     const url = this.#host + path + '?' + (new URLSearchParams(params)).toString();
     let response: Response | null = null;

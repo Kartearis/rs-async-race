@@ -163,7 +163,7 @@ export default class GarageView {
     carElement.stop();
   }
 
-  async startEngine(carId: number, carElement: CarTrack): Promise<CarTrack> {
+  async startEngine(carId: number, carElement: CarTrack, throws: boolean = true): Promise<CarTrack> {
     const animationData = await this.#requestController.toggleEngine(carId, EngineStates.START);
     carElement.run();
     carElement.startDriving(animationData.velocity, animationData.distance);
@@ -171,7 +171,9 @@ export default class GarageView {
     console.log(result);
     if (!result) {
       carElement.finishDriving();
-      throw new Error("Car engine broke down");
+      if (throws)
+        throw new Error("Car engine broke down");
+      else return carElement;
     }
     return carElement;
   }
@@ -185,7 +187,21 @@ export default class GarageView {
       if (this.#raceInProgress) {
         const winnerData: CarData = winner.getCarData();
         this.#rootElement.append(new Alert('Race Finished!', `Winner is ${winnerData.name} (${winnerData.color})!`));
-        // this.#requestController.
+        try {
+          const record = await this.#requestController.getWinner(winnerData.id);
+          await this.#requestController.updateWinner(winnerData.id, {
+            wins: record.wins + 1,
+            time: record.time > winner.getSeconds() ? winner.getSeconds() : record.time
+          });
+        }
+        catch (e: unknown) {
+          if ((e as Error).message === "Requested winner not found")
+            await this.#requestController.createWinner({
+              id: winnerData.id,
+              wins: 1,
+              time: winner.getSeconds()
+            })
+        }
       }
     }
     catch {
