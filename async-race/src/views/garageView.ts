@@ -144,12 +144,16 @@ export default class GarageView {
       });
       carElement.addEventListener('run',
         (event) => this.startEngine((event as CustomEvent<CarData>).detail.id, carElement));
-      carElement.addEventListener('stop', (event) => {
-
-      });
+      carElement.addEventListener('stop', (event) =>
+        this.stopEngine((event as CustomEvent<CarData>).detail.id, carElement));
       this.#carTrackElements.push(carElement);
       carContainer.append(carElement);
     });
+  }
+
+  async stopEngine(carId: number, carElement: CarTrack) {
+    await this.#requestController.toggleEngine(carId, EngineStates.STOP);
+    carElement.stop();
   }
 
   async startEngine(carId: number, carElement: CarTrack) {
@@ -158,5 +162,6 @@ export default class GarageView {
     carElement.startDriving(animationData.velocity, animationData.distance);
     const result = await this.#requestController.evaluateDriving(carId);
     console.log(result);
+    if (!result) carElement.finishDriving();
   }
 }

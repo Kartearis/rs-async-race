@@ -70,12 +70,18 @@ export default class CarTrack extends HTMLElement {
   stop(): void {
     this.#stopButton.disabled = true;
     this.#runButton.disabled = false;
+    this.#carElement.classList.remove('car-track__car--running');
+    this.#carElement.style.animationPlayState = 'running';
   }
 
   startDriving(velocity: number, range: number): void {
-    const eta = range / velocity;
-    this.style.setProperty('--eta', `${eta}ms`);
+    const eta: number = range / velocity;
+    this.#carElement.style.setProperty('--eta', `${eta}ms`);
     this.#carElement.classList.add('car-track__car--running');
+  }
+
+  finishDriving(): void {
+    this.#carElement.style.animationPlayState = 'paused';
   }
 
   emitEvent(eventName: string): void {
