@@ -53,6 +53,10 @@ export default class CarTrack extends HTMLElement {
     return this.#data.id;
   }
 
+  getCarData(): CarData {
+    return this.#data;
+  }
+
   select(): void {
     this.classList.add('car-track--selected');
     this.emitEvent('select');

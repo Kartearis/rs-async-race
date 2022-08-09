@@ -181,14 +181,15 @@ export default class GarageView {
     this.#raceInProgress = true;
     const racers = this.#carTrackElements.map((car: CarTrack) => this.startEngine(car.getId(), car));
     try {
-      const winner = await Promise.any(racers);
+      const winner: CarTrack = await Promise.any(racers);
       if (this.#raceInProgress) {
-        console.log(winner);
-        this.#rootElement.append(new Alert('Race finished', 'Winner is !'));
+        const winnerData: CarData = winner.getCarData();
+        this.#rootElement.append(new Alert('Race Finished!', `Winner is ${winnerData.name} (${winnerData.color})!`));
+        // this.#requestController.
       }
     }
     catch {
-      console.log('No winners');
+      this.#rootElement.append(new Alert('Race Finished!', 'All the cars broke down :('));
     }
 
   }

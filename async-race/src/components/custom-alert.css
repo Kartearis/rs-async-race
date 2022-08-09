@@ -9,12 +9,15 @@
     justify-content: center;
     align-items: center;
     background-color: #17181caa;
+    z-index: 50;
+}
+
+.alert-backdrop:hover {
+    cursor: pointer;
 }
 
 .alert {
-    /*position: fixed;*/
-    /*left: calc(50vw - 150px);*/
-    /*top: calc(50vh - 100px);*/
+    cursor: default;
     width: 300px;
     height: 200px;
     display: grid;
@@ -25,6 +28,7 @@
     border-radius: 5px;
     background-color: #17181c;
     padding: 10px;
+    z-index: 100;
 }
 
 .alert__header {
@@ -54,4 +58,8 @@
     background-color: #30c5ff;
     color: #17181c;
     transform: scale(1.2);
+}
+
+.alert__button:active {
+    transform: scale(1.1);
 }
