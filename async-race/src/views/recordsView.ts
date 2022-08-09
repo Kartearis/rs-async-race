@@ -60,7 +60,7 @@ export default class RecordsView {
       const dataCar = await this.#requestController.getCar(winner.id);
       let tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${num}</td>
+        <td>${num + 1}</td>
         <td> <div class="table-winners__svg-car"></div></td>
         <td>${dataCar.name}</td>
         <td>${winner.wins}</td>
