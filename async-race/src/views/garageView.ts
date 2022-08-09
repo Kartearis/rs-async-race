@@ -151,7 +151,7 @@ export default class GarageView {
           this.#setupForm?.clearCarSelection();
       });
       carElement.addEventListener('run',
-        (event) => this.startEngine((event as CustomEvent<CarData>).detail.id, carElement));
+        (event) => this.startEngine((event as CustomEvent<CarData>).detail.id, carElement, false));
       carElement.addEventListener('stop', (event) =>
         this.stopEngine((event as CustomEvent<CarData>).detail.id, carElement));
       this.#carTrackElements.push(carElement);
