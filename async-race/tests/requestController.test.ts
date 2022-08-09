@@ -1,12 +1,12 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 jest.setTimeout(10000);
 import RequestController, {
-  CarData,
-  CarListData,
-  EngineData,
-  EngineStates
-} from "../src/controllers/requestController";
-// @ts-ignore
+    CarData,
+    CarListData,
+    EngineData,
+    EngineStates,
+} from '../src/controllers/requestController';
+// @ts-expect-error Browser fetch signature differs with node-fetch. Possibly fixable by using separate ts setup for tests
 global.fetch = fetch;
 // All api tests depend on local hosted server calls (and will fail when server is not running).
 // Some tests require that there is a car with id = 1
@@ -59,16 +59,16 @@ describe('getCar tests', () => {
     it('Should throw if no id provided or negative', async () => {
         await expect(async () => {
             // hack to test it in runtime
-            const result = await controller.getCar((undefined as unknown) as number);
+            await controller.getCar((undefined as unknown) as number);
         }).rejects.toThrow(Error);
         await expect(async () => {
-            const result = await controller.getCar(-2);
+            await controller.getCar(-2);
         }).rejects.toThrow(Error);
     });
     it('Should handle "not found" correctly', async () => {
         // Get car with big id (which is correct, but has low probability of existing)
         await expect(async () => {
-            const result = await controller.getCar(100500);
+            await controller.getCar(100500);
         }).rejects.toThrow('Requested car not found');
     });
 });
@@ -155,24 +155,24 @@ describe('createCar tests', () => {
 });
 
 function checkEngineData(data: EngineData) {
-  expect(data.velocity).toBeDefined();
-  expect(data.distance).toBeDefined();
-  expect(typeof data.velocity).toEqual('number');
-  expect(typeof data.distance).toEqual('number');
+    expect(data.velocity).toBeDefined();
+    expect(data.distance).toBeDefined();
+    expect(typeof data.velocity).toEqual('number');
+    expect(typeof data.distance).toEqual('number');
 }
 
 describe('toggleEngine tests', () => {
-  it('Should return actual velocity on start', async () => {
-    const result = await controller.toggleEngine(1, EngineStates.START);
-    checkEngineData(result);
-  });
-  it('Should return actual velocity on stop', async () => {
-    const result = await controller.toggleEngine(1, EngineStates.STOP);
-    checkEngineData(result);
-  });
-  it('Should correctly handle "not found"', async () => {
-    await expect(async () => {
-      await controller.toggleEngine(100500, EngineStates.START);
-    }).rejects.toThrow('Requested car not found');
-  });
+    it('Should return actual velocity on start', async () => {
+        const result = await controller.toggleEngine(1, EngineStates.START);
+        checkEngineData(result);
+    });
+    it('Should return actual velocity on stop', async () => {
+        const result = await controller.toggleEngine(1, EngineStates.STOP);
+        checkEngineData(result);
+    });
+    it('Should correctly handle "not found"', async () => {
+        await expect(async () => {
+            await controller.toggleEngine(100500, EngineStates.START);
+        }).rejects.toThrow('Requested car not found');
+    });
 });

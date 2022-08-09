@@ -1,6 +1,5 @@
-import { assertDefined } from "./usefulFunctions";
+import { assertDefined } from './usefulFunctions';
 import './custom-alert.css';
-
 
 const template = `
   <div class="alert">
@@ -11,23 +10,24 @@ const template = `
 `;
 
 export default class Alert extends HTMLElement {
-  constructor(header: string, content: string) {
-    super();
-    this.classList.add('alert-backdrop');
-    this.addEventListener('click', (event) => this.destroy(event));
-    this.innerHTML = template;
-    const headerElement = assertDefined(this.querySelector('.alert__header'))
-    if (headerElement instanceof HTMLHeadingElement) headerElement.innerText = header;
-    const contentElement = assertDefined(this.querySelector('.alert__content'))
-    if (contentElement instanceof HTMLDivElement) contentElement.innerHTML = content;
-  }
+    constructor(header: string, content: string) {
+        super();
+        this.classList.add('alert-backdrop');
+        this.addEventListener('click', (event) => this.destroy(event));
+        this.innerHTML = template;
+        const headerElement = assertDefined(this.querySelector('.alert__header'));
+        if (headerElement instanceof HTMLHeadingElement) headerElement.innerText = header;
+        const contentElement = assertDefined(this.querySelector('.alert__content'));
+        if (contentElement instanceof HTMLDivElement) contentElement.innerHTML = content;
+    }
 
-  destroy(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('alert__button')
-      || (event.target as HTMLElement).classList.contains('alert-backdrop'))
-    this.remove();
-  }
-
+    destroy(event: MouseEvent): void {
+        if (
+            (event.target as HTMLElement).classList.contains('alert__button') ||
+            (event.target as HTMLElement).classList.contains('alert-backdrop')
+        )
+            this.remove();
+    }
 }
 
 customElements.define('custom-alert', Alert);

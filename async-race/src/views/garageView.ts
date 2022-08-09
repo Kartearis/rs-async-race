@@ -30,7 +30,7 @@ export default class GarageView {
   #requestController: RequestController
   #setupForm: SetupForm | null = null
   #carTrackElements: CarTrack[] = []
-  #raceInProgress: boolean = false;
+  #raceInProgress = false;
   #storageController: StorageController
 
 
@@ -155,6 +155,7 @@ export default class GarageView {
           this.#carTrackElements.find((track: CarTrack) => track.getId() === selected.id)?.deSelect();
           this.#setupForm?.clearCarSelection();
         }
+        // Prettier fails on next line for some reason
         if (event instanceof CustomEvent<CarData>)
         {
           this.#setupForm?.selectCar(event.detail);
@@ -182,7 +183,7 @@ export default class GarageView {
     carElement.stop();
   }
 
-  async startEngine(carId: number, carElement: CarTrack, throws: boolean = true): Promise<CarTrack> {
+  async startEngine(carId: number, carElement: CarTrack, throws = true): Promise<CarTrack> {
     const animationData = await this.#requestController.toggleEngine(carId, EngineStates.START);
     carElement.run();
     carElement.startDriving(animationData.velocity, animationData.distance);

@@ -1,19 +1,12 @@
-import GarageView from "../views/garageView";
-import RecordsView from "../views/recordsView";
-import StorageController from "./storageController";
-import MainView from "../views/mainView";
-
+import StorageController from './storageController';
+import MainView from '../views/mainView';
 
 export default class AppController {
-  mainView: MainView
-  storageController: StorageController
+    mainView: MainView;
+    storageController: StorageController;
 
-  constructor() {
-    this.storageController = new StorageController();
-    this.mainView = new MainView(document.body, this.storageController);
-  }
-
-  init(): void {
-
-  }
+    constructor() {
+        this.storageController = new StorageController();
+        this.mainView = new MainView(document.body, this.storageController);
+    }
 }
