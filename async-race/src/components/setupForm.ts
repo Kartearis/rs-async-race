@@ -38,12 +38,18 @@ export default class SetupForm extends HTMLElement {
 
   selectCar(car: CarData) {
     this.#selectedCar = car;
+    this.#nameInput.value = car.name;
+    this.#colorInput.value = car.color;
     this.#updateButton.disabled = false;
   }
 
   clearCarSelection() {
     this.#selectedCar = null;
     this.#updateButton.disabled = true;
+  }
+
+  getSelectedCar(): CarData | null {
+    return this.#selectedCar;
   }
 
   emitCreate(): void {

@@ -6,6 +6,11 @@
     gap: 10px;
 }
 
+.car-track--selected {
+    background: rgb(48,197,255);
+    background: radial-gradient(at 50% 100%, rgba(48,197,255,1) 0%, rgba(23,24,28,0) 80%);
+}
+
 .car-track__head {
     grid-column: span 2;
     display: flex;
@@ -88,17 +93,25 @@
     border-bottom: 3px solid #30c5ff;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
 }
 
 .car-track__car {
-    width: 50px;
-    height: 30px;
+    width: 70px;
+    height: 20px;
+    transform: scaleX(-1);
+    -webkit-mask-image: url(../assets/svg/sports-car-icon.svg);
+    mask-image:url(../assets/svg/sports-car-icon.svg);
 }
 
 .car-track__goal {
     width: 10%;
-    height: 30px;
-    background-color: blanchedalmond;
+    height: 100%;
+    background-color: red;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-image: url(../assets/svg/flag-svgrepo-com.svg);
+    mask-image:url(../assets/svg/flag-svgrepo-com.svg);
 }
 
 

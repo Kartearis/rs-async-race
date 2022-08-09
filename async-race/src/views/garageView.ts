@@ -27,6 +27,7 @@ export default class GarageView {
   #paginationController: PaginationController
   #requestController: RequestController
   #setupForm: SetupForm | null = null
+  #carTrackElements: CarTrack[] = []
 
 
   constructor(element: HTMLElement) {
@@ -78,7 +79,10 @@ export default class GarageView {
       pageNumber.innerText = pageNumber.dataset['page'] = assertDefined(currentPage).toString();
     });
     this.#paginationController.addHandler(EventTypes.totalChange, (currentPage?: number, totalPages?: number) => {
+      if (assertDefined(totalPages) < parseInt(lastButton.dataset['page'] ?? '1'))
+        this.#paginationController.goto(assertDefined(totalPages));
       lastButton.dataset['page'] = assertDefined(totalPages).toString();
+
     });
     assertDefined(this.#setupForm).addEventListener('create', (event: Event) => this.newCar(event as CustomEvent<CarSettings>));
     assertDefined(this.#setupForm).addEventListener('update', (event: Event) => this.updateCar(event as CustomEvent<CarData>));
@@ -97,6 +101,7 @@ export default class GarageView {
     });
     // TODO: Replace only updated car (if it is required)
     await this.fillData(this.#paginationController.pageNumber);
+    this.#setupForm?.clearCarSelection();
   };
 
   async deleteCar(event: CustomEvent<CarData>): Promise<void> {
@@ -116,8 +121,27 @@ export default class GarageView {
     (assertDefined(this.#rootElement.querySelector('#totalCars')) as HTMLElement)
       .innerText = cars.totalCars.toString();
     carContainer.innerHTML = "";
+    this.#carTrackElements = [];
     cars.carList.forEach((car: CarData) => {
       const carElement = new CarTrack(car);
+      // TODO: Move these listeners to car container
+      carElement.addEventListener('select', (event) => {
+        if (assertDefined(this.#setupForm).getSelectedCar() !== null)
+        {
+          const selected: CarData = assertDefined(this.#setupForm?.getSelectedCar());
+          this.#carTrackElements.find((track: CarTrack) => track.getId() === selected.id)?.deSelect();
+          this.#setupForm?.clearCarSelection();
+        }
+        if (event instanceof CustomEvent<CarData>)
+          this.#setupForm?.selectCar(event.detail);
+      });
+      carElement.addEventListener('delete', (event) => {
+        const ev: CustomEvent<CarData> = event as CustomEvent<CarData>;
+        this.deleteCar(ev);
+        if (ev.detail.id === assertDefined(this.#setupForm?.getSelectedCar()).id)
+          this.#setupForm?.clearCarSelection();
+      });
+      this.#carTrackElements.push(carElement);
       carContainer.append(carElement);
     });
   }

@@ -17,7 +17,6 @@ const template = `
     <div class="car-track__car">
     </div>
     <div class="car-track__goal">
-        
     </div>
   </div>
 `;
@@ -44,6 +43,28 @@ export default class CarTrack extends HTMLElement {
     this.#stopButton = assertDefined(this.querySelector('[data-action="stop"]'));
     this.#nameElement.innerText = this.#data.name;
     this.#carElement.style.background = this.#data.color;
+    this.#deleteButton.addEventListener('click', () => this.emitEvent('delete'));
+    this.#selectButton.addEventListener('click', () => this.select());
+    this.#runButton.addEventListener('click', () => this.emitEvent('run'));
+    this.#stopButton.addEventListener('click', () => this.emitEvent('stop'));
+  }
+
+  getId(): number {
+    return this.#data.id;
+  }
+
+  select(): void {
+    this.classList.add('car-track--selected');
+    this.emitEvent('select');
+  }
+
+  deSelect(): void {
+    this.classList.remove('car-track--selected');
+  }
+
+  emitEvent(eventName: string): void {
+    const event: CustomEvent<CarData> = new CustomEvent(eventName, {detail: this.#data});
+    this.dispatchEvent(event);
   }
 
 }
