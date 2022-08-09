@@ -2,6 +2,7 @@ import { CarData } from "../controllers/requestController";
 import { assertDefined } from "./usefulFunctions";
 
 import './car-track.css';
+import CarFire from "./carFire";
 
 const template = `
   <div class="car-track__head">
@@ -14,8 +15,11 @@ const template = `
     <button disabled class="car-track__engine-button" data-action="stop">S</button>
   </div>
   <div class="car-track__track">
-    <div class="car-track__car">
+    <div class="car-track__car-container">
+      <div class="car-track__car">
+      </div>
     </div>
+    
   </div>
   <div class="car-track__goal">
   </div>
@@ -25,6 +29,7 @@ export default class CarTrack extends HTMLElement {
   #data: CarData
   #nameElement: HTMLHeadingElement
   #carElement: HTMLDivElement
+  #carContainerElement: HTMLDivElement
   #selectButton: HTMLButtonElement
   #deleteButton: HTMLButtonElement
   #runButton: HTMLButtonElement
@@ -36,6 +41,7 @@ export default class CarTrack extends HTMLElement {
     this.#data = data;
     this.classList.add('car-track');
     this.innerHTML = template;
+    this.#carContainerElement = assertDefined(this.querySelector('.car-track__car-container'));
     this.#carElement = assertDefined(this.querySelector('.car-track__car'));
     this.#nameElement = assertDefined(this.querySelector('.car-track__header'));
     this.#selectButton = assertDefined(this.querySelector('[data-action="select"]'));
@@ -75,19 +81,21 @@ export default class CarTrack extends HTMLElement {
   stop(): void {
     this.#stopButton.disabled = true;
     this.#runButton.disabled = false;
-    this.#carElement.classList.remove('car-track__car--running');
-    this.#carElement.style.animationPlayState = 'running';
+    this.#carContainerElement.classList.remove('car-track__car--running');
+    this.#carContainerElement.querySelector('.car-fire')?.remove();
+    this.#carContainerElement.style.animationPlayState = 'running';
   }
 
   startDriving(velocity: number, range: number): void {
     this.#eta = range / velocity;
-    this.#carElement.style.setProperty('--eta', `${this.#eta}ms`);
-    this.#carElement.classList.add('car-track__car--running');
+    this.#carContainerElement.style.setProperty('--eta', `${this.#eta}ms`);
+    this.#carContainerElement.classList.add('car-track__car--running');
   }
 
   finishDriving(): void {
-    this.#carElement.style.animationPlayState = 'paused';
+    this.#carContainerElement.style.animationPlayState = 'paused';
     this.#eta = 0;
+    this.#carContainerElement.append(new CarFire());
   }
 
   getSeconds(): number {

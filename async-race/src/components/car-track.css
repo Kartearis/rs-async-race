@@ -98,8 +98,17 @@
     align-items: flex-end;
 }
 
+.car-track__car-container {
+    width: 90px;
+    height: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
 .car-track__car {
-    width: 70px;
+    flex: 0 0 70px;
+    /*width: 70px;*/
     height: 20px;
     transform: scaleX(-1);
     -webkit-mask-repeat: no-repeat;

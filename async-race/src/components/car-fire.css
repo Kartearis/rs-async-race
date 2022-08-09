@@ -1,0 +1,50 @@
+:root {
+    --fireColor: rgb(255,80,0);
+    --fireColorT: rgba(255,80,0,0);
+    --dur: 1s;
+    --blur: 0.02em;
+    --fireRad: 50px;
+    --partSize: 10px;
+    --anim-delay-rand: 1;
+    --offset: 0.5;
+}
+
+
+.car-fire {
+    filter: blur(var(--blur));
+    -webkit-filter: blur(var(--blur));
+    flex: 0 0 20px;
+    position: relative;
+    right: 20px;
+    height: 10px;
+}
+.car-fire__particle {
+    animation: rise var(--dur) ease-in infinite;
+    background-image: radial-gradient(var(--fireColor) 20%,var(--fireColorT) 70%);
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    opacity: 0;
+    position: absolute;
+    bottom: 0;
+    width: var(--partSize);
+    height: var(--partSize);
+    animation-delay: calc(var(--dur) * var(--anim-delay-rand));
+    left: calc(calc((100% - var(--partSize)) * var(--offset)));
+}
+
+.car-fire__particle--smoke {
+    background-image: radial-gradient(#111111 20%,#101010 70%);
+}
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-4em) scale(0);
+    }
+}
