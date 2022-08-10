@@ -223,7 +223,7 @@ export default class GarageView {
               id: winnerData.id,
               wins: 1,
               time: winner.getSeconds()
-            })
+            });
         }
       }
     }
