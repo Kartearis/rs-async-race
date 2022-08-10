@@ -125,7 +125,10 @@ export default class GarageView {
 
   async deleteCar(event: CustomEvent<CarData>): Promise<void> {
     await this.#requestController.deleteCar(event.detail.id);
-    await this.#requestController.deleteWinner(event.detail.id);
+    try {
+      await this.#requestController.deleteWinner(event.detail.id);
+    }
+    catch {}
     this.#setupForm?.clearCarSelection();
     await this.fillData(this.#paginationController.pageNumber);
   }
