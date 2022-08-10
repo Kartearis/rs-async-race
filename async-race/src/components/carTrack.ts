@@ -82,8 +82,7 @@ export default class CarTrack extends HTMLElement {
         this.#stopButton.disabled = true;
         this.#runButton.disabled = false;
         this.#carContainerElement.classList.remove('car-track__car--running');
-        this.#carContainerElement.querySelectorAll('.car-fire')
-          ?.forEach((cf: Element) => (cf as CarFire).remove());
+        this.#carContainerElement.querySelectorAll('.car-fire')?.forEach((cf: Element) => (cf as CarFire).remove());
         this.#carContainerElement.style.animationPlayState = 'running';
     }
 

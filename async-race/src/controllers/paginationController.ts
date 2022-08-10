@@ -26,8 +26,7 @@ export default class PaginationController {
 
     set totalPages(total: number) {
         if (total === this.#totalPages) return;
-        if (total <= 1)
-            total = 1;
+        if (total <= 1) total = 1;
         this.#totalPages = total;
         this.#handlers.totalChange.forEach((handler: Handler) => handler(this.#pageNumber, this.#totalPages));
     }
