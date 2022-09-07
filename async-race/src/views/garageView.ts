@@ -38,7 +38,7 @@ export default class GarageView {
     this.#rootElement = element;
     this.#storageController = storageController;
     this.#paginationController = new PaginationController();
-    this.#requestController = new RequestController('http://127.0.0.1:3000');
+    this.#requestController = new RequestController('http://async-race-api.kartearis.xyz:30000');
   }
 
   show(): void {

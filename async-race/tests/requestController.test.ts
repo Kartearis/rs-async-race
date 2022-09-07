@@ -11,7 +11,7 @@ global.fetch = fetch;
 // All api tests depend on local hosted server calls (and will fail when server is not running).
 // Some tests require that there is a car with id = 1
 // TODO: Add mock or mock fallback
-const controller = new RequestController('http://127.0.0.1:3000');
+const controller = new RequestController('http://async-race-api.kartearis.xyz:30000');
 
 function testCarData(car: CarData) {
     expect(typeof car.id).toBe('number');

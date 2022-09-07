@@ -51,6 +51,7 @@ export type WinnerListData = {
     winnerList: WinnerData[];
 };
 
+// TODO: Make a singleton
 export default class RequestController {
     readonly #host: string;
 
