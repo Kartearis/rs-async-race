@@ -40,7 +40,7 @@ export default class RecordsView {
         this.#rootElement = element;
         this.#storageController = storageController;
         this.#paginationController = new PaginationController();
-        this.#requestController = new RequestController('http://async-race-api.kartearis.xyz:30000');
+        this.#requestController = new RequestController('https://async-race-api.kartearis.xyz');
     }
 
     show(): void {
